@@ -253,7 +253,7 @@ cdef DTYPE_t c_damerau_levenshtein(
                 Array2D_n1_get(d, i - 1, j) + delete_costs[char_i],    # delete
                 Array2D_n1_get(d, k - 1, l - 1) +                        # transpose
                     col_delete_range_cost(d, k + 1, i - 1) +                      # delete chars in between
-                    transpose_costs[str1[k - 1], str1[i - 1])] +   # transpose chars
+                    transpose_costs[str1[k - 1], str1[i - 1]] +   # transpose chars
                     row_insert_range_cost(d, l + 1, j - 1)                        # insert chars in between
             )
 
