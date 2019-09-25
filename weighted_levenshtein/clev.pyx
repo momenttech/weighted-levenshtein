@@ -4,6 +4,7 @@
 
 from libc.stdlib cimport malloc, free
 from cython.view cimport array as cvarray
+from cpython cimport array
 from .clev cimport DTYPE_t, DTYPE_MAX, ALPHABET_SIZE
 
 
@@ -378,8 +379,8 @@ cdef DTYPE_t c_optimal_string_alignment(
 
 
 def levenshtein(
-    unsigned char* str1,
-    unsigned char* str2,
+    str str1,
+    str str2,
     DTYPE_t[::1] insert_costs=None,
     DTYPE_t[::1] delete_costs=None,
     DTYPE_t[:,::1] substitute_costs=None):
@@ -408,9 +409,20 @@ def levenshtein(
     if substitute_costs is None:
         substitute_costs = unit_matrix
 
-    s1 = str(str1).encode()
-    s2 = str(str2).encode()  
+    print(str1)
+    print(str2)
+    #s1 = str(str1).encode()
+    #s2 = str(str2).encode()  
+    #s1 = np.array([ord(c) for c in str1])
+    #s2 = np.array([ord(c) for c in str2])
+    cdef array.array s1 = array.array('i', [ord(c) for c in str1])
+    #cdef int[:] s1 = _s1
+    cdef array.array s2 = array.array('i', [ord(c) for c in str2])
+    #cdef int[:] s2 = _s2
+    print(s1)
+    print(s2)
 
+    print(0)
     return c_levenshtein(
         s1, len(s1),
         s2, len(s2),
@@ -423,17 +435,17 @@ lev = levenshtein
 
 
 cdef DTYPE_t c_levenshtein(
-    unsigned char* str1, Py_ssize_t len1,
-    unsigned char* str2, Py_ssize_t len2,
-    DTYPE_t[::1] insert_costs,
-    DTYPE_t[::1] delete_costs,
-    DTYPE_t[:,::1] substitute_costs) nogil:
+        int[:] str1, Py_ssize_t len1,
+        int[:] str2, Py_ssize_t len2,
+        DTYPE_t[::1] insert_costs,
+        DTYPE_t[::1] delete_costs,
+        DTYPE_t[:,::1] substitute_costs) nogil:
     """
     https://en.wikipedia.org/wiki/Wagner%E2%80%93Fischer_algorithm
     """
     cdef:
         Py_ssize_t i, j
-        unsigned char char_i, char_j
+        int char_i, char_j
         DTYPE_t ret_val
         Array2D d
 
@@ -441,16 +453,16 @@ cdef DTYPE_t c_levenshtein(
 
     Array2D_0_at(d, 0, 0)[0] = 0
     for i in range(1, len1 + 1):
-        char_i = str_1_get(str1, i)
+        char_i = str1[i-1]
         Array2D_0_at(d, i, 0)[0] = Array2D_0_get(d, i - 1, 0) + delete_costs[char_i]
     for j in range(1, len2 + 1):
-        char_j = str_1_get(str2, j)
+        char_j = str2[j-1]
         Array2D_0_at(d, 0, j)[0] = Array2D_0_get(d, 0, j - 1) + insert_costs[char_j]
 
     for i in range(1, len1 + 1):
-        char_i = str_1_get(str1, i)
+        char_i = str1[i-1]
         for j in range(1, len2 + 1):
-            char_j = str_1_get(str2, j)
+            char_j = str2[j-1]
             if char_i == char_j:  # match
                 Array2D_0_at(d, i, j)[0] = Array2D_0_get(d, i - 1, j - 1)
             else:
