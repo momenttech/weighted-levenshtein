@@ -6,7 +6,7 @@
 
 ## Maintainer
 
-* David Su and InfoScout <oss@infoscoutinc.com>
+* Bertrand Louargant <bertrand.louargant@mmtt.fr>, GitHub: blouargant
 
 
 ## Contributors

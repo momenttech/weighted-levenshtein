@@ -7,9 +7,9 @@ cdef enum:
 
 
 cdef DTYPE_t c_damerau_levenshtein(
-	unsigned char* str_a,
+	int[:] str_a,
 	Py_ssize_t len_a,
-	unsigned char* str_b,
+	int[:] str_b,
 	Py_ssize_t len_b,
 	DTYPE_t[::1] insert_costs,
 	DTYPE_t[::1] delete_costs,
@@ -18,9 +18,9 @@ cdef DTYPE_t c_damerau_levenshtein(
 
 
 cdef DTYPE_t c_optimal_string_alignment(
-	unsigned char* word_m,
+	int[:] word_m,
 	Py_ssize_t m,
-	unsigned char* word_n,
+	int[:] word_n,
 	Py_ssize_t n,
 	DTYPE_t[::1] insert_costs,
 	DTYPE_t[::1] delete_costs,
@@ -29,9 +29,9 @@ cdef DTYPE_t c_optimal_string_alignment(
 
 
 cdef DTYPE_t c_levenshtein(
-        int[:] word_m,
+    int[:] word_m,
 	Py_ssize_t m,
-        int[:] word_n,
+    int[:] word_n,
 	Py_ssize_t n,
 	DTYPE_t[::1] insert_costs,
 	DTYPE_t[::1] delete_costs,

@@ -99,7 +99,6 @@ Usage Example
 Detailed Documentation
 ----------------------
 
-http://weighted-levenshtein.readthedocs.io/
 
 Important Notes
 ---------------
@@ -133,9 +132,9 @@ Function signatures below:
 .. code:: cython
 
     cdef double c_damerau_levenshtein(
-        unsigned char* str_a,
+        int[:] str_a,
         Py_ssize_t len_a,
-        unsigned char* str_b,
+        int[:] str_b,
         Py_ssize_t len_b,
         double[::1] insert_costs,
         double[::1] delete_costs,
@@ -144,9 +143,9 @@ Function signatures below:
 
 
     cdef double c_optimal_string_alignment(
-        unsigned char* word_m,
+        int[:] word_m,
         Py_ssize_t m,
-        unsigned char* word_n,
+        int[:] word_n,
         Py_ssize_t n,
         double[::1] insert_costs,
         double[::1] delete_costs,
@@ -155,9 +154,9 @@ Function signatures below:
 
 
     cdef double c_levenshtein(
-        unsigned char* word_m,
+        int[:] word_m,
         Py_ssize_t m,
-        unsigned char* word_n,
+        int[:] word_n,
         Py_ssize_t n,
         double[::1] insert_costs,
         double[::1] delete_costs,

@@ -8,15 +8,15 @@ with open('README.rst') as readme:
 
 setup(
     name='weighted_levenshtein',
-    version='0.2.1',
+    version='0.3.0',
     description=(
         'Library providing functions to calculate Levenshtein distance, Optimal String Alignment distance, '
         'and Damerau-Levenshtein distance, where the cost of each operation can be weighted by letter.'
     ),
     long_description=long_description,
-    url='https://github.com/infoscout/weighted-levenshtein',
-    author='David Su (InfoScout)',
-    author_email='david.su@infoscoutinc.com',
+    url='https://github.com/momenttech/weighted-levenshtein',
+    author='Bertrand Louargant (Momenttech)',
+    author_email='bertrand.louargant@mmtt.fr',
     license='MIT',
     classifiers=[
         'Development Status :: 3 - Alpha',
