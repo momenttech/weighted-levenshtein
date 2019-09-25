@@ -112,6 +112,7 @@ Important Notes
 
 Compiling
 ----------
+
 .. code:: bash
     python3 setup.py clean --all
     python3 setup.py build_ext --inplace
