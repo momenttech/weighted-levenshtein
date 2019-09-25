@@ -110,6 +110,14 @@ Important Notes
 - This library is compatible with both Python 2 and Python 3 (see ``tox.ini`` for tested versions).
 
 
+Compiling
+----------
+.. code:: bash
+    python3 setup.py clean --all
+    python3 setup.py build_ext --inplace
+
+
+
 
 Use as Cython library
 ---------------------
