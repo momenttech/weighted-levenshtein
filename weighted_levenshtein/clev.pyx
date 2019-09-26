@@ -1,10 +1,13 @@
 #!python
+# coding=utf-8
 # cython: language_level=3, boundscheck=False, wraparound=False, embedsignature=True, linetrace=True, c_string_type=str, c_string_encoding=ascii
 # distutils: define_macros=CYTHON_TRACE_NOGIL=1
 
 from libc.stdlib cimport malloc, free
 from cython.view cimport array as cvarray
 from cpython cimport array
+from itertools import permutations
+import numpy as np
 from .clev cimport DTYPE_t, DTYPE_MAX, ALPHABET_SIZE
 
 
@@ -249,12 +252,12 @@ cdef DTYPE_t c_damerau_levenshtein(
 
             Array2D_n1_at(d, i, j)[0] = min(
                 Array2D_n1_get(d, i - 1, j - 1) + cost,                  # equal/substitute
-                Array2D_n1_get(d, i, j - 1) + insert_costs[char_j],    # insert
-                Array2D_n1_get(d, i - 1, j) + delete_costs[char_i],    # delete
+                Array2D_n1_get(d, i, j - 1) + insert_costs[char_j],      # insert
+                Array2D_n1_get(d, i - 1, j) + delete_costs[char_i],      # delete
                 Array2D_n1_get(d, k - 1, l - 1) +                        # transpose
-                    col_delete_range_cost(d, k + 1, i - 1) +                      # delete chars in between
-                    transpose_costs[str1[k - 1], str1[i - 1]] +   # transpose chars
-                    row_insert_range_cost(d, l + 1, j - 1)                        # insert chars in between
+                    col_delete_range_cost(d, k + 1, i - 1) +             # delete chars in between
+                    transpose_costs[str1[k - 1], str1[i - 1]] +          # transpose chars
+                    row_insert_range_cost(d, l + 1, j - 1)               # insert chars in between
             )
 
         da[char_i] = i
@@ -351,8 +354,8 @@ cdef DTYPE_t c_optimal_string_alignment(
                 Array2D_0_at(d, i, j)[0] = Array2D_0_get(d, i - 1, j - 1)
             else:
                 Array2D_0_at(d, i, j)[0] = min(
-                    Array2D_0_get(d, i - 1, j) + delete_costs[char_i],  # deletion
-                    Array2D_0_get(d, i, j - 1) + insert_costs[char_j],  # insertion
+                    Array2D_0_get(d, i - 1, j) + delete_costs[char_i],                 # deletion
+                    Array2D_0_get(d, i, j - 1) + insert_costs[char_j],                 # insertion
                     Array2D_0_get(d, i - 1, j - 1) + substitute_costs[char_i, char_j]  # substitution
                 )
 
@@ -456,3 +459,51 @@ cdef DTYPE_t c_levenshtein(
     ret_val = Array2D_0_get(d, len1, len2)
     Array2D_del(d)
     return ret_val
+
+cdef int max_len(
+            str str1,
+            str str2):
+    return max(len(str1), len(str2))
+
+
+
+class Similarity:
+    def __init__(self, distance='lev'):
+        if distance == 'lev':
+            self.distance = lev
+            self.norm = max_len
+    
+    def compare(self, str1, str2):
+        return 1 - (self.distance(str1, str2) / self.norm(str1, str2))
+
+
+class SimilarityOCR:
+    def __init__(self):
+        self.substitute_costs = np.ones((ALPHABET_SIZE, ALPHABET_SIZE), dtype=np.float64)
+        ocr_list = [(['I','i','l','1','|','L','T','t','7','['], 0.8),
+                    (['I','i','l','1','|'], 0.4),
+                    (['L','T','t','7','['], 0.7),
+                    (['R','B','D','P'], 0.5),
+                    (['B','8'], 0.4),
+                    (['m','n'], 0.3),
+                    (['M','N'], 0.4),
+                    (['v','w'], 0.3),
+                    (['V','W'], 0.3),
+                    (['o','q'], 0.3),
+                    (['O','Q','0'], 0.2),
+                    (['e','é','è'], 0.1),
+                    (['à','a'], 0.1),
+                    (['$','&'], 0.3),
+                    (['ç','c'], 0.1),
+                    (['Ù','U'], 0.1),
+                    (['A','À','À','Á'], 0.1),
+                    (['E','É','Ê','€'], 0.1)]
+        for entry in ocr_list:
+            _idx = [ord(x) for x in entry[0]]
+            rows = np.array(_idx)
+            cols = np.array([i for i in permutations(_idx)])
+            self.substitute_costs[rows, cols] = entry[1]
+    
+    def compare(self, str1, str2):
+        return 1 - (lev(str1, str2, substitute_costs=self.substitute_costs) / max_len(str1, str2))
+
